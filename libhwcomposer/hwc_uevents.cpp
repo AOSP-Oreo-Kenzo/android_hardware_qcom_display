@@ -39,7 +39,7 @@ namespace qhwc {
 #define HWC_UEVENT_THREAD_NAME "hwcUeventThread"
 
 /* Parse uevent data for devices which we are interested */
-static int getConnectedDisplay(hwc_context_t* ctx, const char* strUdata)
+static int getConnectedDisplay(hwc_context_t* ctx, char* strUdata)
 {
     int ret = -1;
     // Switch node for HDMI as PRIMARY/EXTERNAL
@@ -53,9 +53,9 @@ static int getConnectedDisplay(hwc_context_t* ctx, const char* strUdata)
     return ret;
 }
 
-static bool getPanelResetStatus(hwc_context_t* ctx, const char* strUdata, int len)
+static bool getPanelResetStatus(hwc_context_t* ctx, char* strUdata, int len)
 {
-    const char* iter_str = strUdata;
+    char* iter_str = strUdata;
     if (strcasestr("change@/devices/virtual/graphics/fb0", strUdata)) {
         while(((iter_str - strUdata) <= len) && (*iter_str)) {
             char* pstr = strstr(iter_str, "PANEL_ALIVE=0");
@@ -72,9 +72,9 @@ static bool getPanelResetStatus(hwc_context_t* ctx, const char* strUdata, int le
 }
 
 /* Parse uevent data for action requested for the display */
-static int getConnectedState(const char* strUdata, int len)
+static int getConnectedState(char* strUdata, int len)
 {
-    const char* iter_str = strUdata;
+    char* iter_str = strUdata;
     while(((iter_str - strUdata) <= len) && (*iter_str)) {
         char* pstr = strstr(iter_str, "SWITCH_STATE=");
         if (pstr != NULL) {
@@ -85,7 +85,7 @@ static int getConnectedState(const char* strUdata, int len)
     return -1;
 }
 
-static void handle_uevent(hwc_context_t* ctx, const char* udata, int len)
+static void handle_uevent(hwc_context_t* ctx, char* udata, int len)
 {
     bool bpanelReset = getPanelResetStatus(ctx, udata, len);
     if (bpanelReset) {
@@ -236,7 +236,7 @@ static void handle_uevent(hwc_context_t* ctx, const char* udata, int len)
 static void *uevent_loop(void *param)
 {
     int len = 0;
-    static char udata[PAGE_SIZE];
+    char udata[PAGE_SIZE];
     hwc_context_t * ctx = reinterpret_cast<hwc_context_t *>(param);
     char thread_name[64] = HWC_UEVENT_THREAD_NAME;
     prctl(PR_SET_NAME, (unsigned long) &thread_name, 0, 0, 0);
